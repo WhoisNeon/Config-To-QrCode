@@ -21,7 +21,7 @@
   - 📷 Copy QR image to clipboard
   - 
 - **Real-Time Counters**: Tracks configs, characters, and usernames
-- 
+
 - **Persistent Storage**: Saves your work automatically
 
 ## Usage Guide 🚀
