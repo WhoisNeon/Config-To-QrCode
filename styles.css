@@ -13,6 +13,12 @@ body {
   height: auto;
 }
 
+/* COUNTER STYLES */
+#char-counter,
+#config-counter {
+color: white;
+}
+
 /* TEXTAREA STYLES */
 textarea {
   scrollbar-width: thin;
