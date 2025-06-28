@@ -1,7 +1,7 @@
 # V2ray Config to QrCode 🌐
 
 ![Demo](https://user-images.githubusercontent.com/.../demo.gif)
-*A sleek web tool to convert VPN configs into shareable QR codes*
+**A sleek web tool to convert VPN configs into shareable QR codes**
 
 ## Features ✨
 
