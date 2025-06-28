@@ -38,7 +38,6 @@ Simply visit the [live demo](https://whoisneon.github.io/cfg2qr) - no installati
 git clone https://github.com/WhoisNeon/cfg2qr.git
 cd cfg2qr
 ```
-Open index.html in your browser
 
 ## Credits ✍️
 
