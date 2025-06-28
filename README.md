@@ -1,6 +1,6 @@
 # V2ray Config to QrCode 🌐
 
-[Demo](https://whoisneon.github.io/cfg2qr/)<br />
+[Demo](blank:https://whoisneon.github.io/cfg2qr)<br />
 
 **A sleek web tool to convert VPN configs into shareable QR codes**
 
