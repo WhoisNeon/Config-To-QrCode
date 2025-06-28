@@ -4,7 +4,6 @@ const canvas = document.getElementById("qr-canvas");
 const ctx = canvas.getContext("2d");
 const charCounter = document.getElementById("char-counter");
 const configCounter = document.getElementById("config-counter");
-const usernameDisplay = document.getElementById("username-display"); // Added
 
 // Buttons
 const pasteBtn = document.getElementById("paste-btn");
@@ -47,27 +46,6 @@ function cleanInputText(text) {
   return lines.join('\n');
 }
 
-// Extract username from config (part between @ and .)
-function extractUsername(config) {
-  const atIndex = config.indexOf('@');
-  if (atIndex === -1) return null;
-  
-  const dotIndex = config.indexOf('.', atIndex);
-  if (dotIndex === -1) return null;
-  
-  return config.substring(atIndex + 1, dotIndex);
-}
-
-// Get all unique usernames from configs
-function getUniqueUsernames(configs) {
-  const usernames = new Set();
-  for (const config of configs) {
-    const username = extractUsername(config);
-    if (username) usernames.add(username);
-  }
-  return Array.from(usernames);
-}
-
 // ==============================================
 // Core Functions
 // ==============================================
@@ -107,7 +85,7 @@ function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-// Update character, config, and username counters
+// Update character, config counters
 function updateCounters() {
   const text = input.value;
   const chars = text.length;
@@ -122,19 +100,10 @@ function updateCounters() {
   );
 
   const configs = validConfigs.length;
-  const usernames = getUniqueUsernames(validConfigs);
 
   // Update counters
   charCounter.textContent = `${chars} char${chars > 1 ? "s" : ""}`;
   configCounter.textContent = `${configs} config${configs > 1 ? "s" : ""}`;
-
-  // Update username display
-  if (usernames.length > 0) {
-    usernameDisplay.textContent = usernames.map(u => `@${u}`).join(' - ');
-    usernameDisplay.style.display = 'inline-block';
-  } else {
-    usernameDisplay.style.display = 'none';
-  }
 }
 
 // Split configs into chunks
