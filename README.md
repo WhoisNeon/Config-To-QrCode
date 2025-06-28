@@ -28,3 +28,7 @@
 4. Export using:
    - Copy: For single & instant sharing
    - Zip: Get all QRs at once
+
+## Credits ✍️
+
+**Developed by [WhoisNeon](https://github.com/WhoisNeon)**
