@@ -1,9 +1,11 @@
 // DOM Elements
 const input = document.getElementById("input");
+const urlInput = document.getElementById("url-input");
 const canvas = document.getElementById("qr-canvas");
 const ctx = canvas.getContext("2d");
 const charCounter = document.getElementById("char-counter");
 const configCounter = document.getElementById("config-counter");
+const infoDisplay = document.getElementById("info-display");
 
 // Buttons
 const pasteBtn = document.getElementById("paste-btn");
@@ -15,6 +17,8 @@ const prevBtn = document.getElementById("prev-btn");
 const nextBtn = document.getElementById("next-btn");
 const qrCounter = document.getElementById("qr-counter");
 const copyBtn = document.getElementById("copy-btn");
+const configTab = document.getElementById("config-tab");
+const urlTab = document.getElementById("url-tab");
 
 // Constants
 const maxQRLength = 1273;
@@ -23,7 +27,7 @@ const PERSIAN_CHAR_REGEX = /[\u0600-\u06FF\uFB8A\u067E\u0686\u06AF\u200C\u200F]/
 
 // State
 let qrChunks = [];
-let currentQRIndex = -1000;
+let currentQRIndex = 0;
 
 // ==============================================
 // Utility Functions
@@ -57,12 +61,24 @@ function loadSavedData() {
     try {
       const {
         inputValue,
+        urlValue,
+        activeTab,
         qrChunks: savedChunks,
         currentIndex,
       } = JSON.parse(savedData);
-      input.value = inputValue;
+      
+      input.value = inputValue || "";
+      urlInput.value = urlValue || "";
+      
+      if (activeTab === "url") {
+        urlTab.click();
+      } else {
+        configTab.click();
+      }
+      
       qrChunks = savedChunks || [];
       currentQRIndex = currentIndex || 0;
+      
       if (qrChunks.length > 0) {
         updateQRDisplay();
       }
@@ -79,6 +95,8 @@ function loadSavedData() {
 function saveData() {
   const data = {
     inputValue: input.value,
+    urlValue: urlInput.value,
+    activeTab: configTab.classList.contains("active") ? "config" : "url",
     qrChunks,
     currentIndex: currentQRIndex,
   };
@@ -87,23 +105,21 @@ function saveData() {
 
 // Update character, config counters
 function updateCounters() {
-  const text = input.value;
-  const chars = text.length;
+    const text = input.value;
+    const chars = text.length;
 
-  const configLines = text.split("\n");
-  const validConfigs = configLines.filter(
-    line => line.startsWith("vless://") ||
-           line.startsWith("vmess://") ||
-           line.startsWith("hysteria2://") ||
-           line.startsWith("ss://") ||
-           line.startsWith("trojan://")
-  );
+    const configLines = text.split("\n");
+    const validConfigs = configLines.filter(
+      line => line.startsWith("vless://") ||
+             line.startsWith("vmess://") ||
+             line.startsWith("hysteria2://") ||
+             line.startsWith("ss://") ||
+             line.startsWith("trojan://")
+    );
 
-  const configs = validConfigs.length;
-
-  // Update counters
-  charCounter.textContent = `${chars} char${chars > 1 ? "s" : ""}`;
-  configCounter.textContent = `${configs} config${configs > 1 ? "s" : ""}`;
+    const configs = validConfigs.length;
+    charCounter.textContent = `${chars} character${chars > 1 ? "s" : ""}`;
+    configCounter.textContent = `${configs} config${configs > 1 ? "s" : ""}`;
 }
 
 // Split configs into chunks
@@ -127,58 +143,65 @@ function splitConfigsIntoChunks(configs, maxLength) {
 async function generateQRCodeWithBackground(text, index) {
   try {
     const bgImage = new Image();
-    bgImage.src = `images/background.png`;
+    bgImage.src = urlTab.classList.contains("active") ? "images/urlbackground.png" : "images/background.png";
 
-    // Always load and show numbers, even for single page
-    const currentPageImage = new Image();
-    currentPageImage.src = `images/numbers/${index + 1}.png`;
+    // Only show numbers for config mode
+    let currentPageImage, totalPagesImage;
+    if (!urlTab.classList.contains("active")) {
+      currentPageImage = new Image();
+      currentPageImage.src = `images/numbers/${index + 1}.png`;
 
-    const totalPagesImage = new Image();
-    totalPagesImage.src = `images/numbers/${qrChunks.length}.png`;
+      totalPagesImage = new Image();
+      totalPagesImage.src = `images/numbers/${qrChunks.length}.png`;
+    }
 
     await Promise.all([
       bgImage.decode(),
-      currentPageImage.decode(),
-      totalPagesImage.decode(),
+      ...(urlTab.classList.contains("active") ? [] : [
+        currentPageImage.decode(),
+        totalPagesImage.decode()
+      ])
     ]);
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
 
-    const numberScale = 1;
-    const numberWidth = 264 * numberScale;
-    const numberHeight = 512 * numberScale;
-    const slashWidth = 350;
-    const totalWidth = numberWidth * 2 + slashWidth;
+    if (!urlTab.classList.contains("active")) {
+      const numberScale = 1;
+      const numberWidth = 264 * numberScale;
+      const numberHeight = 512 * numberScale;
+      const slashWidth = 350;
+      const totalWidth = numberWidth * 2 + slashWidth;
 
-    const startX = (canvas.width - totalWidth) / 2;
-    const numberY = canvas.height - numberHeight - 96;
+      const startX = (canvas.width - totalWidth) / 2;
+      const numberY = canvas.height - numberHeight - 96;
 
-    // Draw current page number (left side)
-    ctx.drawImage(
-      currentPageImage,
-      0,
-      0,
-      264,
-      512,
-      startX,
-      numberY,
-      numberWidth,
-      numberHeight
-    );
+      // Draw current page number (left side)
+      ctx.drawImage(
+        currentPageImage,
+        0,
+        0,
+        264,
+        512,
+        startX,
+        numberY,
+        numberWidth,
+        numberHeight
+      );
 
-    // Draw total pages number (right side)
-    ctx.drawImage(
-      totalPagesImage,
-      0,
-      0,
-      264,
-      512,
-      startX + numberWidth + slashWidth,
-      numberY,
-      numberWidth,
-      numberHeight
-    );
+      // Draw total pages number (right side)
+      ctx.drawImage(
+        totalPagesImage,
+        0,
+        0,
+        264,
+        512,
+        startX + numberWidth + slashWidth,
+        numberY,
+        numberWidth,
+        numberHeight
+      );
+    }
 
     // Draw QR code
     const qrCanvas = document.createElement("canvas");
@@ -208,6 +231,24 @@ function updateQRDisplay() {
   saveData();
 }
 
+// Toggle UI elements based on active tab
+function toggleUIElements() {
+  const isUrlMode = urlTab.classList.contains("active");
+  
+  // Toggle info display
+  infoDisplay.style.display = isUrlMode ? "none" : "flex";
+
+  // Toggle ZIP download button
+  downloadZipBtn.style.display = isUrlMode ? "none" : "flex";
+  input.style.display = isUrlMode ? "none" : "block";
+  urlInput.style.display = isUrlMode ? "block" : "none";
+  
+  // Toggle navigation buttons (only show for config mode with multiple QR codes)
+  const showNavButtons = !isUrlMode && qrChunks.length > 1;
+  prevBtn.style.display = showNavButtons ? "flex" : "none";
+  nextBtn.style.display = showNavButtons ? "flex" : "none";
+}
+
 // ==============================================
 // Event Handlers
 // ==============================================
@@ -232,9 +273,13 @@ function handleInput() {
 async function handlePaste() {
   try {
     const text = await navigator.clipboard.readText();
-    let cleanedText = removePersianText(text);
-    cleanedText = cleanInputText(cleanedText);
-    input.value += (input.value ? "\n" : "") + cleanedText;
+    if (urlTab.classList.contains("active")) {
+      urlInput.value = text;
+    } else {
+      let cleanedText = removePersianText(text);
+      cleanedText = cleanInputText(cleanedText);
+      input.value += (input.value ? "\n" : "") + cleanedText;
+    }
     saveData();
     updateCounters();
   } catch (err) {
@@ -247,26 +292,117 @@ async function handlePaste() {
 // Event Listeners
 // ==============================================
 
-generateBtn.addEventListener("click", () => {
-  const raw = input.value.trim();
-  const lines = raw
-    .split("\n")
-    .filter(
-      (line) =>
-        line.startsWith("vless://") ||
-        line.startsWith("vmess://") ||
-        line.startsWith("hysteria2://") ||
-        line.startsWith("ss://") ||
-        line.startsWith("trojan://")
-    );
-  if (!lines.length) {
-    notificationSystem.show("No configs found.", "error", 3000);
-    return;
+// Tab switching
+configTab.addEventListener("click", () => {
+  if (urlTab.classList.contains("active")) {
+    localStorage.setItem("urlTabState", JSON.stringify({
+      urlValue: urlInput.value,
+      qrChunks: qrChunks,
+      currentIndex: currentQRIndex
+    }));
   }
-  qrChunks = splitConfigsIntoChunks(lines, maxQRLength);
-  currentQRIndex = 0;
-  updateQRDisplay();
+
+  configTab.classList.add("active");
+  urlTab.classList.remove("active");
+  
+  const configTabState = localStorage.getItem("configTabState");
+  if (configTabState) {
+    try {
+      const { inputValue, qrChunks: savedChunks, currentIndex } = JSON.parse(configTabState);
+      input.value = inputValue || "";
+      qrChunks = savedChunks || [];
+      currentQRIndex = currentIndex || 0;
+    } catch (e) {
+      console.error("Failed to parse config tab state", e);
+    }
+  } else {
+    qrChunks = [];
+    currentQRIndex = 0;
+  }
+
+  updateQRDisplay(); // This will call saveData()
   updateCounters();
+  toggleUIElements();
+});
+
+urlTab.addEventListener("click", () => {
+  if (configTab.classList.contains("active")) {
+    localStorage.setItem("configTabState", JSON.stringify({
+      inputValue: input.value,
+      qrChunks: qrChunks,
+      currentIndex: currentQRIndex
+    }));
+  }
+
+  urlTab.classList.add("active");
+  configTab.classList.remove("active");
+  
+  const urlTabState = localStorage.getItem("urlTabState");
+  if (urlTabState) {
+    try {
+      const { urlValue, qrChunks: savedChunks, currentIndex } = JSON.parse(urlTabState);
+      urlInput.value = urlValue || "";
+      qrChunks = savedChunks || [];
+      currentQRIndex = currentIndex || 0;
+    } catch (e) {
+      console.error("Failed to parse URL tab state", e);
+    }
+  } else {
+    qrChunks = [];
+    currentQRIndex = 0;
+  }
+
+  updateQRDisplay(); // This will call saveData()
+  updateCounters();
+  toggleUIElements();
+});
+
+generateBtn.addEventListener("click", () => {
+  if (urlTab.classList.contains("active")) {
+    // Handle URL generation
+    const url = urlInput.value.trim();
+    if (!url) {
+      notificationSystem.show("Please enter a URL.", "error", 3000);
+      return;
+    }
+    
+    // Basic URL validation
+    try {
+      new URL(url);
+    } catch (e) {
+      notificationSystem.show("Please enter a valid URL.", "error", 3000);
+      return;
+    }
+    
+    // Limit to 1 URL
+    qrChunks = [url];
+    currentQRIndex = 0;
+    updateQRDisplay();
+    updateCounters();
+    toggleUIElements();
+  } else {
+    // Existing config generation logic
+    const raw = input.value.trim();
+    const lines = raw
+      .split("\n")
+      .filter(
+        (line) =>
+          line.startsWith("vless://") ||
+          line.startsWith("vmess://") ||
+          line.startsWith("hysteria2://") ||
+          line.startsWith("ss://") ||
+          line.startsWith("trojan://")
+      );
+    if (!lines.length) {
+      notificationSystem.show("No configs found.", "error", 3000);
+      return;
+    }
+    qrChunks = splitConfigsIntoChunks(lines, maxQRLength);
+    currentQRIndex = 0;
+    updateQRDisplay();
+    updateCounters();
+    toggleUIElements();
+  }
 });
 
 copyBtn.addEventListener("click", () => {
@@ -305,13 +441,18 @@ nextBtn.addEventListener("click", () => {
 });
 
 clearBtn.addEventListener("click", () => {
-  input.value = "";
+  if (urlTab.classList.contains("active")) {
+    urlInput.value = "";
+  } else {
+    input.value = "";
+  }
   qrChunks = [];
   currentQRIndex = 0;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   qrCounter.textContent = "";
   saveData();
   updateCounters();
+  toggleUIElements();
 });
 
 pasteBtn.addEventListener("click", handlePaste);
@@ -320,7 +461,9 @@ downloadBtn.addEventListener("click", () => {
   if (!qrChunks.length)
     return notificationSystem.show("No QR code to download.", "warning", 3000);
   const link = document.createElement("a");
-  link.download = `qrcode-${currentQRIndex + 1}.png`;
+  link.download = urlTab.classList.contains("active") 
+    ? "url-qrcode.png" 
+    : `qrcode-${currentQRIndex + 1}.png`;
   link.href = canvas.toDataURL("image/png");
   link.click();
 });
@@ -335,11 +478,7 @@ downloadZipBtn.addEventListener("click", async () => {
 
     downloadZipBtn.disabled = true;
     downloadZipBtn.innerHTML = `
-      <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      Creating ZIP...
+      Creating... <i class="spinner ml-1 animate-spin"></i>
     `;
 
     for (let i = 0; i < qrChunks.length; i++) {
@@ -356,9 +495,9 @@ downloadZipBtn.addEventListener("click", async () => {
     link.click();
     URL.revokeObjectURL(link.href);
   } catch (error) {
-    console.error("Error creating ZIP file:", error);
+    console.error("Error creating zip file:", error);
     notificationSystem.show(
-      "Error creating ZIP file. Please check console for details.",
+      "Error creating zip file. Please check console for details.",
       "error",
       5000
     );
@@ -386,4 +525,10 @@ input.addEventListener("input", function() {
   updateCounters();
 });
 
+urlInput.addEventListener("input", function() {
+  saveData();
+  updateCounters();
+});
+
 loadSavedData();
+toggleUIElements(); // Initialize UI elements visibility
