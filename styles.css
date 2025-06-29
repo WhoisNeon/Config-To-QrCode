@@ -3,6 +3,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  user-select: none;
 }
 
 /* QR CANVAS STYLES */
@@ -12,6 +13,27 @@ body {
   max-width: 100%;
   height: auto;
 }
+
+#qr-counter{height: 1.75rem; width: 3.8rem;}
+
+/* TAB STYLES */
+.tab-btn {
+  padding: 0.5rem 1rem;
+  color: #9CA3AF;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  color: white;
+  border-bottom-color: #3B82F6;
+}
+
+.tab-btn:hover:not(.active) {
+  color: #D1D5DB;
+}
+
+
 
 /* TEXTAREA STYLES */
 textarea {
@@ -59,6 +81,15 @@ textarea::-webkit-scrollbar-thumb {
 
 .btn-nav:hover {
   background-color: #4b5563;
+}
+
+.spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  border-top-color: white;
 }
 
 /* NOTIFICATION SYSTEM STYLES */
