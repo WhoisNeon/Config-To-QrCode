@@ -1,97 +1,99 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
-  <!-- HEAD SECTION -->
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>V2ray Config to QrCode</title>
-    
-    <!-- External Resources -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css" />
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
-    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon" />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
+<!-- HEAD SECTION -->
 
-  <!-- BODY SECTION -->
-  <body class="bg-gray-900 text-white min-h-screen p-5 flex items-center justify-center">
-    <div class="w-full container">
-      <div class="flex flex-col lg:flex-row gap-8 items-center justify-center">
-        
-        <!-- LEFT COLUMN (Input Section) -->
-        <div class="lg:w-1/2 space-y-6">
-          <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
-            <!-- Config Info Display -->
-            <div class="flex items-center gap-12 justify-center text-sm text-gray-400 mb-4">
-                <span id="config-counter" class="bg-gray-700 px-2 py-1 rounded">0 config</span>
-                <span id="char-counter" class="bg-gray-700 px-2 py-1 rounded">0 char</span>
-            </div>
-            
-            <!-- Main Textarea -->
-            <textarea
-              id="input"
-              rows="16"
-              placeholder="Paste your configs here..."
-              class="w-full p-4 text-lg bg-gray-700 border border-gray-600 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-            ></textarea>
-            
-            <!-- Action Buttons -->
-            <div class="flex flex-wrap gap-2 justify-center mt-4">
-              <button id="clear-btn" class="btn bg-red-600 hover:bg-red-700 font-bold">
-                Clear <i class="ph-fill ph-trash ml-1"></i>
-              </button>
-              <button id="paste-btn" class="btn bg-blue-600 hover:bg-blue-700 font-bold">
-                Paste <i class="ph-fill ph-clipboard-text ml-1 ml-1"></i>
-              </button>
-              <button id="generate-btn" class="btn bg-green-600 hover:bg-green-700 font-bold">
-                Generate <i class="ph-fill ph-qr-code ml-1"></i>
-              </button>
-              <button id="copy-btn" class="btn bg-purple-600 hover:bg-purple-700 font-bold">
-                Copy <i class="ph-fill ph-copy ml-1"></i>
-              </button>
-              <button id="download-btn" class="btn bg-blue-500 hover:bg-blue-600 font-bold">
-                Download <i class="ph-fill ph-download-simple ml-1"></i>
-              </button>
-              <button id="download-zip-btn" class="btn bg-yellow-600 hover:bg-yellow-700 font-bold">
-                Zip <i class="ph-fill ph-file-archive ml-1"></i>
-              </button>
-            </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>V2ray Config to QrCode</title>
+
+  <!-- External Resources -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <link rel="stylesheet" type="text/css"
+    href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+  <link rel="stylesheet" type="text/css"
+    href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+  <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<!-- BODY SECTION -->
+
+<body class="bg-gray-900 text-white min-h-screen p-5 flex items-center justify-center">
+  <div class="w-full container">
+    <div class="flex lg:flex-row gap-8 items-center justify-center">
+
+      <!-- LEFT COLUMN (Input Section) -->
+      <div class="lg:w-1/2 space-y-6">
+        <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
+          <div class="flex items-center justify-center border-b border-gray-700 mb-4 gap-2">
+            <button id="config-tab" class="tab-btn">Config</button>
+            <button id="url-tab" class="tab-btn">URL</button>
+          </div>
+          <!-- Config Info Display -->
+          <div id="info-display" class="flex flex-wrap items-center justify-center gap-2 text-sm text-gray-400 mb-4">
+            <span id="config-counter" class="bg-gray-700 px-2 py-1 rounded">0 config</span>
+            <span id="char-counter" class="bg-gray-700 px-2 py-1 rounded">0 character</span>
+          </div>
+
+          <!-- Main Textarea -->
+          <textarea id="input" rows="12" placeholder="Paste your configs here..."
+            class="w-full p-4 text-lg bg-gray-700 border border-gray-600 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 transition"></textarea>
+          <input type="text" id="url-input" placeholder="Enter URL here..."
+            class="w-full p-4 text-lg bg-gray-700 border border-gray-600 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap border-t border-gray-700 justify-center items-center gap-2 mt-4 pt-4">
+            <button id="clear-btn" class="btn bg-red-600 hover:bg-red-700 font-bold">
+              Clear <i class="ph-fill ph-trash ml-1"></i>
+            </button>
+            <button id="paste-btn" class="btn bg-blue-600 hover:bg-blue-700 font-bold">
+              Paste <i class="ph-fill ph-clipboard-text ml-1 ml-1"></i>
+            </button>
+            <button id="generate-btn" class="btn bg-green-600 hover:bg-green-700 font-bold">
+              Generate <i class="ph-fill ph-qr-code ml-1"></i>
+            </button>
+            <button id="copy-btn" class="btn bg-purple-600 hover:bg-purple-700 font-bold">
+              Copy <i class="ph-fill ph-copy ml-1"></i>
+            </button>
+            <button id="download-btn" class="btn bg-blue-500 hover:bg-blue-600 font-bold">
+              Download <i class="ph-fill ph-download-simple ml-1"></i>
+            </button>
+            <button id="download-zip-btn" class="btn bg-yellow-600 hover:bg-yellow-700 font-bold">
+              Zip <i class="ph-fill ph-file-archive ml-1"></i>
+            </button>
           </div>
         </div>
+      </div>
 
-        <!-- RIGHT COLUMN (QR Output Section) -->
-        <div class="lg:w-1/2 max-w-xl">
-          <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
-            <div class="flex flex-col items-center gap-4">
-              <!-- QR Canvas -->
-              <canvas
-                id="qr-canvas"
-                width="4000"
-                height="4000"
-                class="border-2 border-gray-700 rounded-lg shadow-md max-w-full"
-              ></canvas>
-              
-              <!-- QR Navigation -->
-              <div class="flex items-center gap-3">
-                <button id="prev-btn" class="btn-nav">
-                  <i class="ph ph-caret-left"></i>
-                </button>
-                <span id="qr-counter" class="text-sm text-gray-300 bg-gray-700 px-3 py-1 rounded-full"></span>
-                <button id="next-btn" class="btn-nav">
-                  <i class="ph ph-caret-right"></i>
-                </button>
-              </div>
+      <!-- RIGHT COLUMN (QR Output Section) -->
+      <div class="lg:w-1/2 max-w-xl">
+        <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+          <div class="flex flex-col items-center gap-4">
+            <!-- QR Canvas -->
+            <canvas id="qr-canvas" width="4000" height="4000"
+              class="border-2 border-gray-700 rounded-lg shadow-md max-w-full"></canvas>
+
+            <!-- QR Navigation -->
+            <div class="flex items-center gap-3">
+              <button id="prev-btn" class="btn-nav">
+                <i class="ph ph-caret-left"></i>
+              </button>
+              <span id="qr-counter" class="text-sm text-gray-300 bg-gray-700 px-3 py-1 rounded-full"></span>
+              <button id="next-btn" class="btn-nav">
+                <i class="ph ph-caret-right"></i>
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
-    
-    <!-- Scripts -->
-    <script src="notification.js"></script>
-    <script src="script.js"></script>
-  </body>
+  </div>
+
+  <!-- Scripts -->
+  <script src="notification.js"></script>
+  <script src="script.js"></script>
+</body>
+
 </html>
