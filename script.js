@@ -143,7 +143,7 @@ function splitConfigsIntoChunks(configs, maxLength) {
 async function generateQRCodeWithBackground(text, index) {
   try {
     const bgImage = new Image();
-    bgImage.src = urlTab.classList.contains("active") ? "images/urlbackground.png" : "images/background.png";
+    bgImage.src = urlTab.classList.contains("active") ? "images/urlbackground.png" : "images/cfgbackground.png";
 
     // Only show numbers for config mode
     let currentPageImage, totalPagesImage;
